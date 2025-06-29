@@ -1,0 +1,94 @@
+
+#include <iostream>
+#include <cmath>
+using namespace std;
+
+struct Day {
+    int number;
+    double morning_temp;
+    double evening_temp;
+};
+
+void max_changes(Day days[]) {
+    double max_change = 0;
+    int index;
+    
+    for (int i = 0; i < 7; i++) {
+        if (fabs(days[i].morning_temp - days[i].evening_temp) > max_change) {
+                max_change = fabs(days[i].morning_temp - days[i].evening_temp);
+                index = i;
+        }
+    }
+    
+    cout << "Максимальный перепад температуры: " << max_change << ", день: " << days[index].number << endl;
+}
+
+void average_temp(Day days[]) {
+    double average_morning = 0;
+    double average_evening = 0;
+    
+    for (int i = 0; i < 7; i++) {
+        average_morning += days[i].morning_temp;
+        average_evening += days[i].evening_temp;
+    }
+    
+    average_morning /= 7;
+    average_evening /= 7;
+    
+    cout << "Средняя температура за неделю " << endl;
+    cout << "Днем: " << average_morning << endl;
+    cout << "Вечером: " << average_evening << endl;
+    cout << endl;
+}
+
+void warmest_day(Day days[]) {
+    double averages[7];
+    
+    for (int i = 0; i < 7; i++) {
+        averages[i] = static_cast<float> ((days[i].morning_temp + days[i].evening_temp) / 2);
+    }
+    
+    double max_temp = averages[0];
+    int index = 0;
+    for (int i = 0; i < 7; i++) {
+        if (averages[i] > max_temp) {
+            max_temp = averages[i];
+            index = i;
+        }
+    }
+    
+    cout << "Самый теплый день: " << days[index].number << ", средняя температура: " << averages[index] << endl;
+}
+
+Day info() {
+    Day day; // создаю объект
+
+    cout << "День: ";
+    cin >> day.number;
+    cout << "Температура утром: ";
+    cin >> day.morning_temp;
+    cout << "Температура вечером: ";
+    cin >> day.evening_temp;
+    cout << "----------------------" << endl;
+
+    // проверку на ввод делать было лень
+    
+    return day;
+}
+
+void get_info(Day days[]) {
+    for (int i = 0; i < 7; i++) {
+        days[i] = info(); // сохраняю объект в массив
+    }
+}
+
+int main() {
+    Day days[7]; // массив объектов структуры Day
+    
+    get_info(days);
+    average_temp(days);
+    warmest_day(days);
+    max_changes(days);
+    
+    return 0;
+}
