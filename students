@@ -1,0 +1,51 @@
+
+#include <iostream>
+using namespace std;
+
+struct Student { 
+    string name;
+    int age;
+    double average;
+};
+
+Student get_info() { // функция возвращает объект структуры Student
+    Student student; // создаю объект
+    
+    cout << "Имя студента: ";
+    cin >> student.name;
+    cout << "Возраст: ";
+    cin >> student.age;
+    cout << "Средний балл: ";
+    cin >> student.average; 
+    cout << "--------------" << endl;
+    
+    return student; // возвращаю объект
+}
+
+void display_info(Student students[], int number) {
+    for (int i = 0; i < number; i++) {
+        cout << "Студент " << students[i].name << ": " << endl;
+        cout << "   Возраст: " << students[i].age << endl;
+        cout << "   Средний балл: " << students[i].average << endl;
+        cout << endl;
+    }
+}
+
+void number_of_students(Student students[]) { // принимает массив объектов
+    int number;
+    
+    cout << "Количество студентов: ";
+    cin >> number;
+    
+    for (int i = 0; i < number; i++) {
+        students[i] = get_info(); // сохраняю объект с заполненными полями в массив объектов
+    }
+    
+    display_info(students, number);
+}
+
+int main() {
+    Student students[100]; // массив из объектов
+    number_of_students(students);
+    return 0;
+}
