@@ -1,0 +1,139 @@
+
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+class Book {
+private:
+    string title;
+    string author;
+    int year;
+    int pages;
+    
+public:
+    void input() { // метод заполнения полей
+        cin.ignore();
+        cout << "Название: ";
+        getline(cin, title);
+        cout << "Автор: ";
+        getline(cin, author);
+        cout << "Год: ";
+        cin >> year;
+        cout << "Количество страниц: ";
+        cin >> pages;
+        cout << endl;
+    }
+    
+    void display() { // вывод полей
+        cout << "Название: " << title << endl;
+        cout << "Автор: " << author << endl;
+        cout << "Год: " << year << endl;
+        cout << "Количество страниц: " << pages << endl;
+        cout << endl;
+    }
+    
+    bool is_modern() { // проверка на год
+        return (year > 2000);
+    }
+    
+    bool is_by(string name) { // сравниваю с приватным полем author
+        return (name == author);
+    }
+};
+
+class Library {
+private:
+    Book books[100]; // статичный массив из 100 объектов класса Book (книг)
+    int count = 0; // счетчик книг
+    
+public:
+    bool has_books() { // флаг для проверки наличия книг
+        return count > 0;
+    }
+    
+    void add_book() { // добавление книг
+        int number;
+        cout << "Введите количество книг: ";
+        cin >> number;
+        
+        if (count < 100 && (count + number) <= 100) { 
+            for (int i = 0; i < number; i++) { 
+                books[count + i].input(); 
+            }
+            count += number; // пополняю счетчик книг
+        }
+        else if (count < 100 && (count + number) > 100) {
+            cout << "Не хватает места для добавления " << number << " книг. Можно добавить: " << 100 - count << " книг" << endl;
+        }
+        else {
+            cout << "Библиотека заполнена" << endl;
+        }
+    }
+    
+    void show_all() { // вывод книг
+        cout << "----------------------------" << endl;
+        for (int i = 0; i < count; i++) {
+            cout << "#" << i + 1 << endl;
+            books[i].display();
+        }
+        cout << "----------------------------" << endl;
+    }
+    
+    void show_by_author() { // фильтрация по автору
+        string name;
+        cout << "Введите автора: ";
+        cin.ignore();
+        getline(cin, name);
+        
+        cout << "----------------------------" << endl;
+        for (int i = 0; i < count; i++) {
+            if (books[i].is_by(name)) {
+                books[i].display();
+            }
+        }
+        cout << "----------------------------" << endl;
+    }
+    
+    void show_modern() { // фильтрация по году
+        cout << "Современные книги: " << endl;
+        cout << "----------------------------" << endl;
+        for (int i = 0; i < count; i++) {
+            if (books[i].is_modern()) {
+                books[i].display();
+            }
+        }
+        cout << "----------------------------" << endl;
+    }
+};
+
+void show_error() {
+    cout << "Сначала добавьте книги в библиотеку" << endl;
+    cout << endl;
+}
+
+int main() {
+    Library library; // объект класса Library
+    
+    while (true) { // меню
+        int choice;
+        cout << "1. Добавление нескольких книг" << endl;
+        cout << "2. Показ всех книг" << endl;
+        cout << "3. Фильтрация по автору" << endl;
+        cout << "4. Фильтрация по современным книгам" << endl;
+        cout << "0. Выход" << endl;
+        cout << "Выбор: ";
+        cin >> choice;
+        cout << endl;
+        
+        switch (choice) {
+            case 1: library.add_book(); break;
+            case 2: if (library.has_books()) {library.show_all();} else {show_error();} break;
+            case 3: if (library.has_books()) {library.show_by_author();} else {show_error();} break;
+            case 4: if (library.has_books()) {library.show_modern();} else {show_error();} break;
+            case 0: return 0;
+        }
+     }
+    
+    return 0;
+}
