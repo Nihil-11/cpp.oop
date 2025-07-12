@@ -1,0 +1,177 @@
+#include <iostream>
+
+using namespace std;
+
+class Student {
+private:
+    string name;
+    int age;
+    int id;
+
+public:
+    void set_info() { // метод заполнения полей объекта Student через инкапсуляцию
+        string temp_name;
+        int temp_age;
+        int temp_id;
+
+        cout << "--------------------" << endl;
+        cout << "Enter student's name: ";
+        cin >> temp_name;
+        cout << "Enter student's age: ";
+        cin >> temp_age;
+        cout << "Enter student's id: ";
+        cin >> temp_id;
+        cout << "--------------------" << endl;
+
+        name = temp_name;
+        age = temp_age;
+        id = temp_id;
+    }
+
+    void display_info() { // вывод полей объекта Student
+        cout << "------ Student information ------" << endl;
+        cout << "Name: " << name << endl;
+        cout << "Age: " << age << endl;
+        cout << "Id: " << id << endl;
+        cout << "---------------------------------" << endl;
+    }
+};
+
+class Course {
+private:
+    string course_name;
+    string code;
+    Student students[100]; // массив объектов класса Student
+
+    int number_of_students = 0; // счетчик
+
+public:
+    void add_student() { // заполнение полей объекта Student (заполнение элемента массива students)
+        if (number_of_students < 100) {
+            students[number_of_students].set_info(); // вызов метода для заполнения полей объекта Student
+            number_of_students++;
+        } else {
+            cout << "Maximum number of students reached." << endl;
+        }
+    }
+
+    void set_course_info() { // метод заполнения полей объекта Course через инкапсуляцию
+        string temp_course_name;
+        string temp_code;
+        cout << endl;
+        cout << "--------------------" << endl;
+        cout << "Course name: ";
+        cin >> temp_course_name;
+        cout << "Course code: ";
+        cin >> temp_code;
+        cout << "--------------------" << endl;
+        cout << endl;
+
+        course_name = temp_course_name;
+        code = temp_code;
+    }
+
+    void display_course_info() { // вывод полей объекта Course (и массива из объектов Student)
+        cout << "--------------------" << endl;
+        cout << "Course name: " << course_name << endl;
+        cout << "Number of students: " << number_of_students << endl;
+        cout << "Students of the course: " << endl;
+        for (int i = 0; i < number_of_students; i++) {
+            cout << endl;
+            students[i].display_info();
+            cout << endl;
+        }
+        cout << "--------------------" << endl;
+    }
+
+    bool check_code(string temp_code) { // проверяет, существует ли объект Course с заданным полем code 
+        if (temp_code == code) {
+            return true;
+        } else {
+            cout << "No course found by code " << temp_code << endl;    
+            return false;
+        }
+    }
+};
+
+class University {
+private: 
+    string university_name;
+    Course courses[10]; // массив из объектов класса Course
+    int number_of_courses = 0; // счетчик
+
+public:
+    void add_course() { // "добавление" нового объекта класса Course
+        if (number_of_courses < 10) {
+            courses[number_of_courses].set_course_info(); // вызов метода заполнения полей объекта класса Course
+            number_of_courses++;
+        } else {
+            cout << "Maximum number of courses reached." << endl;
+        }
+    }
+
+    void display_all_courses() { // вывод каждого заданного элемента массива cources (полей каждого объекта Course)
+        cout << "--------------------" << endl;
+        cout << "Cources info: " << endl;
+        for (int i = 0; i < number_of_courses; i++) {
+            courses[i].display_course_info();
+        }
+        cout << "--------------------" << endl;
+    }
+
+    void find_course_by_code() { // поиск объекта Course, содержащего temp_code в значении code
+        string temp_code;
+        cout << "--------------------" << endl;
+        cout << "Find by code: ";
+        cin >> temp_code;
+        for (int i = 0; i < number_of_courses; i++) {
+            if (courses[i].check_code(temp_code)) { // проверяет через bool-евый метод check_code 
+                courses[i].display_course_info();
+            }
+        }
+    }
+
+    void add_student_to_course() { // добавление объекта Student в массив
+        string temp_code;
+        cout << "--------------------" << endl;
+        cout << "Enter course code: ";
+        cin >> temp_code;
+        for (int i = 0; i < number_of_courses; i++) {
+            if (courses[i].check_code(temp_code)) { // проверяет через bool-евый метод check_code 
+                courses[i].add_student(); // если существует объект со значением temp_code в поле code, заполняет поля объекта student
+            }
+        }
+    }
+};
+
+void menu(University& university, bool* run) { // меню
+    int choice;
+    cout << "------Menu------" << endl;
+    cout << "1. Add course" << endl;
+    cout << "2. Display all courses" << endl;
+    cout << "3. Add student to the cource" << endl;
+    cout << "4. Find course by code" << endl;
+    cout << "5. Exit" << endl;
+    cout << "Enter the choice: ";
+    cin >> choice;
+
+    switch (choice) {
+        case 1: university.add_course(); break;
+        case 2: university.display_all_courses(); break;
+        case 3: university.add_student_to_course(); break;
+        case 4: university.find_course_by_code(); break;
+        case 5: cout << endl; cout << "Exit complete"; *run = false; break;
+    }
+}
+
+int main() {
+    bool run = true; // флаг
+
+    University university; 
+
+    while (run) {
+        menu(university, &run);
+    }
+    
+    return 0;
+}
