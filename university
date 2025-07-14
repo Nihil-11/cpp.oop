@@ -9,23 +9,12 @@ private:
     int id;
 
 public:
-    void set_info() { // метод заполнения полей объекта Student через инкапсуляцию
-        string temp_name;
-        int temp_age;
-        int temp_id;
-
-        cout << "--------------------" << endl;
-        cout << "Enter student's name: ";
-        cin >> temp_name;
-        cout << "Enter student's age: ";
-        cin >> temp_age;
-        cout << "Enter student's id: ";
-        cin >> temp_id;
-        cout << "--------------------" << endl;
-
+    int set_info(string temp_name, int temp_age, int temp_id) { // метод заполнения полей объекта Student через инкапсуляцию
         name = temp_name;
         age = temp_age;
         id = temp_id;
+
+        return temp_id;
     }
 
     void display_info() { // вывод полей объекта Student
@@ -35,6 +24,14 @@ public:
         cout << "Id: " << id << endl;
         cout << "---------------------------------" << endl;
     }
+
+    int get_id() { // получение значения id для метода find student
+        return id;
+    }
+
+    string get_name() { // получение значения name для метода find student
+        return name;
+    }
 };
 
 class Course {
@@ -42,31 +39,48 @@ private:
     string course_name;
     string code;
     Student students[100]; // массив объектов класса Student
-
+    int students_ids[100]; // массив значений поля id каждого объекта класса Student
     int number_of_students = 0; // счетчик
 
 public:
+    bool id_exists(int temp_id) {
+        for (int i = 0; i < number_of_students; i++) {
+            if (students_ids[i] == temp_id) {
+                cout << "Student with id " << temp_id << "already exists" << endl;
+                return true;
+            } 
+        }
+        return false;
+    }
+
     void add_student() { // заполнение полей объекта Student (заполнение элемента массива students)
         if (number_of_students < 100) {
-            students[number_of_students].set_info(); // вызов метода для заполнения полей объекта Student
-            number_of_students++;
+            string temp_name;
+            int temp_age;
+            int temp_id;
+
+            cout << "--------------------" << endl;
+            cout << "Enter student's name: ";
+            cin.ignore();
+            getline(cin, temp_name);   
+            cout << "Enter student's age: ";
+            cin >> temp_age;
+            cout << "Enter student's id: ";
+            cin >> temp_id;
+            cout << "--------------------" << endl;
+
+            if (!id_exists(temp_id)) { // проверка на дубликат
+                students[number_of_students].set_info(temp_name, temp_age, temp_id); // вызов метода для заполнения полей объекта Student
+                students_ids[number_of_students] = temp_id; // записывает значение id в массив
+                number_of_students++;
+            }
+
         } else {
             cout << "Maximum number of students reached." << endl;
         }
     }
 
-    void set_course_info() { // метод заполнения полей объекта Course через инкапсуляцию
-        string temp_course_name;
-        string temp_code;
-        cout << endl;
-        cout << "--------------------" << endl;
-        cout << "Course name: ";
-        cin >> temp_course_name;
-        cout << "Course code: ";
-        cin >> temp_code;
-        cout << "--------------------" << endl;
-        cout << endl;
-
+    void set_course_info(string temp_course_name, string temp_code) { // метод заполнения полей объекта Course через инкапсуляцию 
         course_name = temp_course_name;
         code = temp_code;
     }
@@ -92,54 +106,170 @@ public:
             return false;
         }
     }
+
+    int get_number_of_st() { // получение значения поля number_of_students через инкапсуляцию
+        return number_of_students;
+    }
+
+    Student& get_student_byindex(int index) { // получение значений элемента массива students для метода find_student 
+        return students[index]; // возвращает ссылку на объект Student
+    }
 };
 
 class University {
 private: 
     string university_name;
     Course courses[10]; // массив из объектов класса Course
+    string courses_codes[10]; // массив значений поля code каждого объекта Course
+    string courses_names[10]; // массив значений поля course_name каждого объекта Course
     int number_of_courses = 0; // счетчик
 
 public:
+    void find_student() { // поиск объекта Student с заданным полем id/name
+        if (sum_of_students() > 0) {
+            int choice;
+            bool found = false;
+            cout << endl;
+            cout << "1. Find by id" << endl;
+            cout << "2. Find by name" << endl;
+            cout << "Enter the choice: ";
+            cin >> choice;  
+
+            if (choice == 1) {
+                int temp_id;
+                cout << "Enter student's id: ";
+                cin >> temp_id;
+
+                for (int i = 0; i < number_of_courses; i++) {
+                    if (courses[i].get_number_of_st() > 0) {
+                        for (int j = 0; j < courses[i].get_number_of_st(); j++) {
+                            if (courses[i].get_student_byindex(j).get_id() == temp_id) {
+                                courses[i].get_student_byindex(j).display_info();
+                                found = true;
+                            }
+                        }
+                    }
+                }
+                if (!found) {
+                    cout << "No student found by id " << temp_id << endl;
+                }
+            }
+
+            if (choice == 2) {
+                string temp_name;
+                cout << "Enter student's name: ";
+                cin >> temp_name;
+
+                for (int i = 0; i < number_of_courses; i++) {
+                    if (courses[i].get_number_of_st() > 0) {
+                        for (int j = 0; j < courses[i].get_number_of_st(); j++) {
+                            if (courses[i].get_student_byindex(j).get_name() == temp_name) {
+                                courses[i].get_student_byindex(j).display_info();
+                                found = true;
+                            }
+                        }
+                    }
+                }
+                if (!found) {
+                    cout << "No student found by name " << temp_name <<  endl;
+                }
+            }
+        } else {
+            cout << "There is no students in university yet." << endl;
+        }
+    }
+
+    int sum_of_students() { // считает общее количество студентов, суммируя все кол-ва студентов на каждом курсе
+        int sum = 0;
+        for (int i = 0; i < number_of_courses; i++) {
+            sum += courses[i].get_number_of_st(); // обращение к методу для получения кол-ва на отдельном курсе
+        }
+        return sum;
+    }
+
+    void set_university_name(string temp_university_name) {
+        university_name = temp_university_name;
+    }
+
     void add_course() { // "добавление" нового объекта класса Course
         if (number_of_courses < 10) {
-            courses[number_of_courses].set_course_info(); // вызов метода заполнения полей объекта класса Course
+            string temp_course_name;
+            string temp_code;
+            cout << endl;
+            cout << "--------------------" << endl;
+            cout << "Course name: ";
+            getline(cin, temp_course_name);
+            cout << "Course code: ";
+            cin >> temp_code;
+            cout << "--------------------" << endl;
+            cout << endl;
+            
+            for (int i = 0; i < number_of_courses; i++) { // проверка на повтор полей course_name и code
+                if (courses_codes[i] == temp_code) {
+                    cout << "Course with code " << temp_code << " already exists." << endl;
+                    return;
+                }
+
+                if (courses_names[i] == temp_course_name) {
+                    cout << "Course with name " << temp_course_name << " already exists." << endl;
+                    return;
+                }
+            }
+            
+            // если нет повторений, заполняет поля значениями и записывает значения в массивы
+            courses_codes[number_of_courses] = temp_code; 
+            courses_names[number_of_courses] = temp_course_name;
+            courses[number_of_courses].set_course_info(temp_course_name, temp_code); // вызов метода заполнения полей объекта класса Course
             number_of_courses++;
+            cout << "Course added successfully." << endl;
+
         } else {
             cout << "Maximum number of courses reached." << endl;
         }
     }
 
-    void display_all_courses() { // вывод каждого заданного элемента массива cources (полей каждого объекта Course)
+    void display_university_info() { // вывод каждого заданного элемента массива cources (полей каждого объекта Course) 
+        cout << endl;
         cout << "--------------------" << endl;
+        cout << "University: " << university_name << endl;
+        cout << "Number of all students: " << sum_of_students() << endl; // а также вывод суммарного кол-ва студентов
         cout << "Cources info: " << endl;
+
         for (int i = 0; i < number_of_courses; i++) {
-            courses[i].display_course_info();
+            courses[i].display_course_info(); 
         }
         cout << "--------------------" << endl;
     }
 
     void find_course_by_code() { // поиск объекта Course, содержащего temp_code в значении code
-        string temp_code;
-        cout << "--------------------" << endl;
-        cout << "Find by code: ";
-        cin >> temp_code;
-        for (int i = 0; i < number_of_courses; i++) {
-            if (courses[i].check_code(temp_code)) { // проверяет через bool-евый метод check_code 
-                courses[i].display_course_info();
+        if (number_of_courses > 0) {
+            string temp_code;
+            cout << "--------------------" << endl;
+            cout << "Find by code: ";
+            cin >> temp_code;
+            for (int i = 0; i < number_of_courses; i++) {
+                if (courses[i].check_code(temp_code)) { // проверяет через bool-евый метод check_code 
+                    courses[i].display_course_info();
+                }
             }
+        } else {
+            cout << "No courses available." << endl;
         }
     }
 
     void add_student_to_course() { // добавление объекта Student в массив
-        string temp_code;
-        cout << "--------------------" << endl;
-        cout << "Enter course code: ";
-        cin >> temp_code;
-        for (int i = 0; i < number_of_courses; i++) {
-            if (courses[i].check_code(temp_code)) { // проверяет через bool-евый метод check_code 
-                courses[i].add_student(); // если существует объект со значением temp_code в поле code, заполняет поля объекта student
+        if (number_of_courses > 0) {
+            string temp_code;
+            cout << "--------------------" << endl;
+            cout << "Enter course code: ";
+            cin >> temp_code;
+            for (int i = 0; i < number_of_courses; i++) {
+                if (courses[i].check_code(temp_code)) { // проверяет через bool-евый метод check_code 
+                    courses[i].add_student(); // если существует объект со значением temp_code в поле code, заполняет поля объекта student
+                }
             }
+        } else {
+            cout << "No courses available." << endl;
         }
     }
 };
@@ -148,19 +278,22 @@ void menu(University& university, bool* run) { // меню
     int choice;
     cout << "------Menu------" << endl;
     cout << "1. Add course" << endl;
-    cout << "2. Display all courses" << endl;
+    cout << "2. Display university name and all courses" << endl;
     cout << "3. Add student to the cource" << endl;
     cout << "4. Find course by code" << endl;
-    cout << "5. Exit" << endl;
+    cout << "5. Find student by name/id" << endl;
+    cout << "6. Exit" << endl;
     cout << "Enter the choice: ";
     cin >> choice;
+    cin.ignore();
 
     switch (choice) {
         case 1: university.add_course(); break;
-        case 2: university.display_all_courses(); break;
+        case 2: university.display_university_info(); break;
         case 3: university.add_student_to_course(); break;
         case 4: university.find_course_by_code(); break;
-        case 5: cout << endl; cout << "Exit complete"; *run = false; break;
+        case 5: university.find_student(); break;
+        case 6: cout << endl; cout << "Exit complete"; *run = false; break;
     }
 }
 
@@ -168,6 +301,11 @@ int main() {
     bool run = true; // флаг
 
     University university; 
+    string temp_university_name;
+
+    cout << "Enter university name: ";
+    getline(cin, temp_university_name);
+    university.set_university_name(temp_university_name);
 
     while (run) {
         menu(university, &run);
