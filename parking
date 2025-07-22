@@ -1,0 +1,273 @@
+#include <iostream>
+
+using namespace std;
+
+class Vehicle { // базовый класс, поля, методы, (и поведение) которого будут наследовать последующие классы
+protected: // эти поля будут наследованы
+    string model;
+    int year;
+    int mileage;
+
+public:
+    virtual void load(int) {} // метод используется в классе Truck, объявлен здесь для видимости относительно Vehicle
+    virtual void unload(int) {} // метод используется в классе Truck, объявлен здесь для видимости относительно Vehicle
+
+    virtual void set_info() { // объявляю virtual, так как метод будет наследоваться и переопределяться
+        cout << "Enter the model of the vehicle: ";
+        cin >> model;
+        cout << "Enter the year of the vehicle: ";
+        cin >> year;
+        cout << "Enter the mileage of the vehicle: ";
+        cin >> mileage;
+    }
+
+    virtual void display() { // как и в случае с set_info(), объявляю virtual
+        cout << endl;
+        cout << "Model: " << model << endl;
+        cout << "Year: " << year << endl;
+        cout << "Mileage: " << mileage << endl;
+    }
+
+    void add_mileage(int miles) {
+        mileage += miles;
+    } 
+
+    virtual string get_type() {
+        return "Vehicle";
+    }
+};
+
+class Car : public Vehicle { // наследует поля Vehicle
+private: 
+    int doors;
+
+public:
+    void set_info() override {
+        Vehicle::set_info();
+        cout << "Enter the number of doors: ";
+        cin >> doors;
+    }
+
+    void display() override {
+        Vehicle::display();
+        cout << endl;
+        cout << "Special info: " << endl;
+        cout << "Doors: " << doors;
+    }
+
+    string get_type() override {
+        return "Car";
+    }
+};
+
+class Motorcycle : public Vehicle { // наследует поля Vehicle
+private:
+    bool has_sidecar;
+
+public: 
+    void set_info() override {
+        Vehicle::set_info();
+        string has_sidecar_temp;
+        cout << "Does the motorcycle have a sidecar? (yes/no): ";
+        cin >> has_sidecar_temp;
+        if (has_sidecar_temp == "yes") {
+            has_sidecar = true;
+        } 
+        else if (has_sidecar_temp == "no") {
+            has_sidecar = false;
+        } 
+        else {
+            cout << "Invalid input. Defaulting to no sidecar." << endl;
+            has_sidecar = false;
+        }
+    }
+
+    void display() override {
+        Vehicle::display();
+        cout << "Special info: " << endl;
+        if (has_sidecar) {
+            cout << "Has sidecar" << endl;
+        } else {cout << "Has no sidecar " << endl;}
+    }
+
+    string get_type() override {
+        return "Motorcycle";
+    }
+};
+
+class Truck : public Vehicle { // наследует поля Vehicle
+private: 
+    int max_load;
+    int current_load;
+
+public:
+    void load(int kg) {
+        if (kg <= max_load - current_load) {
+            current_load += kg;
+            cout << "Truck loaded with " << kg << " kg, current load: " << current_load << endl;
+        } else {
+            cout << "Truck cannot carry that much. Current load: " << current_load << endl;
+        }
+    }
+
+    void unload(int kg) {
+        if (kg > 0) {
+            if (current_load >= kg) {
+                current_load -= kg;
+                cout << "Truck unloaded with " << kg << " kg, current load: " << current_load << endl;
+            } else {
+                cout << "Truck cannot unload that much. Current load: " << current_load << endl;
+            }
+        } else {
+            cout << "You cannot unload a negative amount of kg" << endl;
+        }
+    }
+
+    void set_info() override {
+        Vehicle::set_info();
+        cout << "What is the maximum load of the truck in kg? ";
+        cin >> max_load;
+        cout << "What is the current load of the truck in kg? ";
+        cin >> current_load;
+    }
+
+    void display() override {
+        Vehicle::display();
+        cout << "Special info: " << endl;
+        cout << "Max load: " << max_load << " kg" << endl;
+        cout << "Current load: " << current_load << " kg" << endl;
+    }
+
+    string get_type() override {
+        return "Truck";
+    }
+};
+
+int main() {
+    Vehicle* park[10]; // массив указателей на объекты Vehicle
+    bool is_truck[10] = {false}; // массив флагов 
+    int count = 0; // счетчик 
+
+    bool run = true; // флаг для работы программы
+    while (run) {
+        int choice;
+        cout << "----------------------" << endl;
+        cout << "1. Add a car" << endl;
+        cout << "2. Add a motorcycle" << endl;
+        cout << "3. Add a truck" << endl;
+        cout << "4. Display all vehicles" << endl;
+        cout << "5. Add mileage" << endl;
+        cout << "6. Load/unload truck" << endl;
+        cout << "7. Exit" << endl;
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        switch (choice) {
+            case 1: 
+                if (count < 10) {
+                    Car* car = new Car; // динамически создаю объект класса Car, чтобы обращаться к методам и полям оригинала объекта
+                    car->set_info();
+                    park[count] = car;
+                    count++;
+                } 
+                else {
+                    cout << "Parking lot is full" << endl;
+                } 
+                break;
+
+            case 2: 
+                if (count < 10) {
+                    Motorcycle* motorcycle = new Motorcycle; // динамически создаю объект класса Motorcycle (как в случае с Car)
+                    motorcycle->set_info();
+                    park[count] = motorcycle;
+                    count++;
+                } else {
+                    cout << "Parking lot is full" << endl;
+                } 
+                break;
+
+            case 3: 
+                if (count < 10) {
+                    Truck* truck = new Truck; // динамически создаю объект класса Truck (как в случае с Car)
+                    truck->set_info();
+                    park[count] = truck;
+                    is_truck[count] = true;
+                    count++;
+                } else {
+                    cout << "Parking lot is full" << endl;
+                } 
+                break;
+
+            case 4: 
+                if (count > 0) {
+                    for (int i = 0; i < count; i++) {
+                        cout << "Vehicle " << i + 1 << endl;
+                        cout << "Type: " << park[i]->get_type() << endl;
+                        park[i]->display();
+                        cout << endl;
+                    } 
+                } else {
+                    cout << "No vehicles in the parking lot" << endl;
+                } 
+            break;
+
+            case 5: 
+                if (count > 0) {
+                    int number;
+                    cout << "Enter the vehicle number: ";
+                    cin >> number;
+                    if (number < count + 1 && number > 0) {
+                        int miles;
+                        cout << "Enter the miles: ";
+                        cin >> miles;
+                        park[number - 1]->add_mileage(miles);
+                    } else {
+                        cout << "Invalid vehicle number" << endl;
+                    }
+                } else {
+                    cout << "No vehicles in the parking lot" << endl;
+                }
+            break;
+
+            case 6: 
+                int number;
+                cout << "Enter the vehicle number: ";
+                cin >> number;
+                if (number < count + 1 && number > 0) {
+                    if (is_truck[number - 1]) {
+                        int choice;
+                        int kg;
+                        cout << "Load truck" << endl;
+                        cout << "Unload truck" << endl;
+                        cout << "Your choice: ";
+                        cin >> choice;
+
+                        if (choice == 1) {
+                            cout << "Load with: ";
+                            cin >> kg;
+                            park[number - 1]->load(kg);
+                        } 
+                        if (choice == 2) {
+                            cout << "Unload with: ";
+                            cin >> kg;
+                            park[number - 1]->unload(kg);
+                        } else {
+                            cout << "Invalid choice" << endl;
+                        }
+                    }
+                } else {
+                    cout << "Invalid vehicle number" << endl;
+                }
+            break;
+
+            case 7: 
+                cout << "-----------Exit complete-----------" << endl;
+                for (int i = 0; i < count; i++) { // освобождение динамически выделенной памяти
+                    delete park[i];
+                }   
+                run = false;
+                break;
+        }
+    }
+    return 0;
+}
